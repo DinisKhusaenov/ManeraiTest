@@ -414,6 +414,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _maskSize: {x: 1024, y: 1024}
   _bruiseDelay: 3
+  _redSplat: {fileID: 2800000, guid: 48d625e7f803d9248b62d8cb70f8bc87, type: 3}
+  _bruiseSplat: {fileID: 2800000, guid: b60d802836f2478488b7d3c079fc28c1, type: 3}
   _blitShader: {fileID: 4800000, guid: 50eeae757d62aa440979694bf7ca6c7f, type: 3}
   _redTint: {r: 1, g: 0.2, b: 0.2, a: 1}
   _bruiseTint: {r: 0.3, g: 0, b: 0.4, a: 1}
