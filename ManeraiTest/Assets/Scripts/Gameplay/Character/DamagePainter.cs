@@ -6,14 +6,16 @@ namespace Gameplay.Character
     public class DamagePainter : MonoBehaviour
     {
         [Header("Mask Settings")]
-        [SerializeField] private Vector2Int _maskSize     = new(1024, 1024);
-        [SerializeField] private float       _bruiseDelay = 3f;
+        [SerializeField]
+        private Vector2Int _maskSize = new(1024, 1024);
 
-        [Header("Splats")]
-        [SerializeField] private Texture2D   _redSplat;    // ваша капля покраснения
-        [SerializeField] private Texture2D   _bruiseSplat;
-        [Header("Shader")]
-        [SerializeField] private Shader      _blitShader;
+        [SerializeField] private float _bruiseDelay = 3f;
+
+        [Header("Splats")] 
+        [SerializeField] private Texture2D _redSplat;
+        [SerializeField] private Texture2D _bruiseSplat;
+        [Header("Shader")] 
+        [SerializeField] private Shader _blitShader;
 
         private Material _blitMaterial;
         private RenderTexture _redMask;
@@ -23,9 +25,10 @@ namespace Gameplay.Character
         [Header("Tints")] [SerializeField] private Color _redTint = new Color(1f, 0.2f, 0.2f, 1f);
         [SerializeField] private Color _bruiseTint = new Color(0.3f, 0f, 0.4f, 1f);
 
-        static readonly int MainTexID = Shader.PropertyToID("_MainTex");
-        static readonly int ColorID = Shader.PropertyToID("_SplatColor");
-        static readonly int InfoID = Shader.PropertyToID("_SplatInfo");
+        static readonly int MaskTexID  = Shader.PropertyToID("_MaskTex");
+        static readonly int SplatTexID = Shader.PropertyToID("_SplatTex");
+        static readonly int ColorID    = Shader.PropertyToID("_Color");
+        static readonly int InfoID     = Shader.PropertyToID("_Info");
 
         void Awake()
         {
@@ -46,23 +49,23 @@ namespace Gameplay.Character
         // создаёт RT нужного размера и сразу заливает чёрным (alpha = 0)
         RenderTexture CreateClearedRT()
         {
-            var rt = new RenderTexture(_maskSize.x, _maskSize.y, 0, RenderTextureFormat.R8);
+            var rt = new RenderTexture(_maskSize.x, _maskSize.y, 0, RenderTextureFormat.ARGB32);
+            rt.wrapMode = TextureWrapMode.Clamp;
+            rt.filterMode = FilterMode.Bilinear;
             rt.Create();
             // clear
             var old = RenderTexture.active;
             RenderTexture.active = rt;
-            GL.Clear(true, true, Color.black);
+            GL.Clear(true, true, Color.clear);
             RenderTexture.active = old;
             return rt;
         }
 
-        /// <summary>
-        /// Попадание — сразу краснота, потом синяк.
-        /// </summary>
         public void PaintAt(Vector2 uv)
         {
             PaintRed(uv);
             StartCoroutine(DelayedBruise(uv));
+            Debug.Log(uv);
         }
 
         void PaintRed(Vector2 uv)
@@ -76,21 +79,18 @@ namespace Gameplay.Character
             BlitSplat(_bruiseMask, _bruiseSplat, _bruiseTint, uv, 0.2f);
         }
 
-        // вот здесь передаём сплэт-текстуру прямо в MainTex,
-        // + tint и параметры (uv.xy, scale = z)
-        void BlitSplat(RenderTexture target, Texture2D splatTex, Color tint, Vector2 uv, float scale)
+        void BlitSplat(RenderTexture mask, Texture2D splatTex, Color tint, Vector2 uv, float scale)
         {
-            // Сохраняем старое содержимое
-            var tmp = RenderTexture.GetTemporary(target.descriptor);
-            Graphics.Blit(target, tmp);
+            var tmp = RenderTexture.GetTemporary(mask.descriptor);
+            Graphics.Blit(mask, tmp);
 
-            // Настраиваем шейдер
-            _blitMaterial.SetTexture(MainTexID, splatTex);
+            _blitMaterial.SetTexture(MaskTexID, tmp);
+            _blitMaterial.SetTexture(SplatTexID, splatTex);
             _blitMaterial.SetColor(ColorID, tint);
-            _blitMaterial.SetVector(InfoID, new Vector4(uv.x, uv.y, scale, 0f));
+            _blitMaterial.SetVector(InfoID, new Vector4(uv.x, uv.y, scale, 0));
 
-            // Рисуем новый сплэт в маску
-            Graphics.Blit(tmp, target, _blitMaterial);
+            Graphics.Blit(null, mask, _blitMaterial);
+
             RenderTexture.ReleaseTemporary(tmp);
         }
 
