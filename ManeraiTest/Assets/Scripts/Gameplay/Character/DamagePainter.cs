@@ -10,17 +10,18 @@ namespace Gameplay.Character
         private Vector2Int _maskSize = new(1024, 1024);
 
         [SerializeField] private float _bruiseDelay = 3f;
+        [SerializeField] private float _scale = 0.05f;
 
         [Header("Splats")] 
         [SerializeField] private Texture2D _redSplat;
         [SerializeField] private Texture2D _bruiseSplat;
         [Header("Shader")] 
         [SerializeField] private Shader _blitShader;
+        [SerializeField] private Material _headMaterial;
 
         private Material _blitMaterial;
         private RenderTexture _redMask;
         private RenderTexture _bruiseMask;
-        private Material _headMaterial;
 
         [Header("Tints")] [SerializeField] private Color _redTint = new Color(1f, 0.2f, 0.2f, 1f);
         [SerializeField] private Color _bruiseTint = new Color(0.3f, 0f, 0.4f, 1f);
@@ -39,9 +40,6 @@ namespace Gameplay.Character
             _redMask = CreateClearedRT();
             _bruiseMask = CreateClearedRT();
 
-            // 3) «вкручиваем» RT в шейдер головы
-            var rend = GetComponent<Renderer>();
-            _headMaterial = rend.material; // инстанс
             _headMaterial.SetTexture("_RedMask", _redMask);
             _headMaterial.SetTexture("_BruiseMask", _bruiseMask);
         }
@@ -65,32 +63,38 @@ namespace Gameplay.Character
         {
             PaintRed(uv);
             StartCoroutine(DelayedBruise(uv));
-            Debug.Log(uv);
         }
 
         void PaintRed(Vector2 uv)
         {
-            BlitSplat(_redMask, _redSplat, _redTint, uv, 0.15f);
+            BlitSplat(_redMask, _redSplat, _redTint, uv, _scale, 0f);
         }
 
         IEnumerator DelayedBruise(Vector2 uv)
         {
             yield return new WaitForSeconds(_bruiseDelay);
-            BlitSplat(_bruiseMask, _bruiseSplat, _bruiseTint, uv, 0.2f);
+            BlitSplat(_bruiseMask, _bruiseSplat, _bruiseTint, uv, _scale, 1f);
         }
 
-        void BlitSplat(RenderTexture mask, Texture2D splatTex, Color tint, Vector2 uv, float scale)
+        void BlitSplat(
+            RenderTexture mask,
+            Texture2D     splatTex,
+            Color         tint,
+            Vector2       uv,
+            float         scale,
+            float         mode     // ← наш новый параметр
+        )
         {
             var tmp = RenderTexture.GetTemporary(mask.descriptor);
             Graphics.Blit(mask, tmp);
 
-            _blitMaterial.SetTexture(MaskTexID, tmp);
-            _blitMaterial.SetTexture(SplatTexID, splatTex);
-            _blitMaterial.SetColor(ColorID, tint);
-            _blitMaterial.SetVector(InfoID, new Vector4(uv.x, uv.y, scale, 0));
+            _blitMaterial.SetTexture("_MaskTex", tmp);
+            _blitMaterial.SetTexture("_SplatTex", splatTex);
+            _blitMaterial.SetColor("_Color", tint);
+            // последний компонент _Info.w = mode
+            _blitMaterial.SetVector(InfoID, new Vector4(uv.x, uv.y, scale, mode));
 
             Graphics.Blit(null, mask, _blitMaterial);
-
             RenderTexture.ReleaseTemporary(tmp);
         }
 

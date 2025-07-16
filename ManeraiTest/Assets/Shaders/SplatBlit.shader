@@ -42,15 +42,25 @@ Shader "Custom/SplatBlit"
             fixed4 frag(v2f i) : SV_Target
             {
                 float4 prev = tex2D(_MaskTex, i.uv);
-                if (_Info.z <= 0) return float4(prev.rgb,1);
-            
+                if (_Info.z <= 0) return prev;
+
                 float2 d = (i.uv - _Info.xy)/_Info.z + 0.5;
-                if (d.x<0||d.x>1||d.y<0||d.y>1) return float4(prev.rgb,1);
-            
+                if (d.x<0||d.x>1||d.y<0||d.y>1) return prev;
+
+                // форма кисти
                 float a = tex2D(_SplatTex, d).a * _Color.a;
-                prev.r = max(prev.r, a * _Color.r);  // краснота
-                prev.g = max(prev.g, a * _Color.g);  // синяк
-                return float4(prev.rgb,1);
+
+                if (_Info.w < 0.5)
+                {
+                    // red mode: копим в R
+                    prev.r = max(prev.r, a * _Color.r);
+                }
+                else
+                {
+                    // bruise mode: копим форму в Alpha
+                    prev.a = max(prev.a, a);
+                }
+                return prev;
             }
             ENDCG
         }
