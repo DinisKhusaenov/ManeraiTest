@@ -73,7 +73,7 @@ namespace Gameplay.Character
         IEnumerator DelayedBruise(Vector2 uv)
         {
             yield return new WaitForSeconds(_bruiseDelay);
-            BlitSplat(_bruiseMask, _bruiseSplat, _bruiseTint, uv, _scale, 1f);
+            BlitSplat(_bruiseMask, _redSplat, _bruiseTint, uv, _scale, 1f);
         }
 
         void BlitSplat(
