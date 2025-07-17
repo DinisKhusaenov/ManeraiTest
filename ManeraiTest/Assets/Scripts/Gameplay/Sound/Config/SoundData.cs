@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.Audio;
 
 namespace Gameplay.Sound.Config
 {
@@ -9,7 +8,6 @@ namespace Gameplay.Sound.Config
     {
         public SoundType SoundType;
         public AudioClip AudioClip;
-        public AudioMixerGroup MixerGroup;
         public bool isLoop;
     }
 }

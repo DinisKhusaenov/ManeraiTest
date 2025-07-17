@@ -1,5 +1,5 @@
-using System;
 using Gameplay.StaticData;
+using Gameplay.VFX;
 using UnityEngine;
 using Zenject;
 
@@ -16,12 +16,11 @@ namespace Infrastructure.Services.PoolService.Factory
             _staticDataService = staticDataService;
         }
         
-        public TComponent Create<TComponent>(
-            PoolObjectType type, 
+        public TComponent CreateSound<TComponent>( 
             Vector3 position, 
             Transform parent = null) where TComponent : MonoBehaviour
         {
-            GameObject prefab = GetPrefabBy(type);
+            GameObject prefab = _staticDataService.SoundConfig.Prefab.gameObject;
             
             return _instantiator.InstantiatePrefab(
                 prefab, 
@@ -30,15 +29,15 @@ namespace Infrastructure.Services.PoolService.Factory
                 parent).GetComponent<TComponent>();
         }
 
-        private GameObject GetPrefabBy(PoolObjectType type)
+        public TComponent CreateVFX<TComponent>(Vector3 position, VFXType type, Transform parent = null) where TComponent : MonoBehaviour
         {
-            switch (type)
-            {
-                case PoolObjectType.Sound:
-                    return _staticDataService.SoundConfig.Prefab.gameObject;
-            }
-
-            throw new Exception($"PoolObject by type {type} does not exist");
+            GameObject prefab = _staticDataService.VFXConfig.GetPrefabByType(type).gameObject;
+            
+            return _instantiator.InstantiatePrefab(
+                prefab, 
+                position, 
+                Quaternion.identity, 
+                parent).GetComponent<TComponent>();
         }
     }
 }

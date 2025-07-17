@@ -14,14 +14,14 @@ namespace Gameplay.Sound
         
         private ObjectPool<SoundItem> _pool;
 
-        // [Inject]
-        // private void Construct(IPoolFactory poolFactory, IStaticDataService staticDataService)
-        // {
-        //     _poolFactory = poolFactory;
-        //     _pool = new ObjectPool<SoundItem>(_poolFactory);
-        //     _config = staticDataService.SoundConfig;
-        //     _pool.Initialize(_config.PoolCapacity, PoolObjectType.Sound, transform);
-        // }
+        [Inject]
+        private void Construct(IPoolFactory poolFactory, IStaticDataService staticDataService)
+        {
+            _poolFactory = poolFactory;
+            _pool = new ObjectPool<SoundItem>(_poolFactory);
+            _config = staticDataService.SoundConfig;
+            _pool.Initialize(_config.PoolCapacity, PoolObjectType.Sound, transform);
+        }
 
         public void Play(SoundType type)
         {

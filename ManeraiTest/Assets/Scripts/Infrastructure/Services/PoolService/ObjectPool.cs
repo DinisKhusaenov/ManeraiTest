@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Gameplay.VFX;
 using Infrastructure.Services.PoolService.Factory;
 using UnityEngine;
 
@@ -11,6 +13,8 @@ namespace Infrastructure.Services.PoolService
         private Transform _parent;
         private Stack<TComponent> _entries;
 
+        private VFXType _vfxType = VFXType.None;
+
         public PoolObjectType Type { get; private set; }
         public IReadOnlyCollection<TComponent> Entries => _entries;
         
@@ -19,16 +23,17 @@ namespace Infrastructure.Services.PoolService
             _factory = factory;
         }
         
-        public void Initialize(int startCapacity, PoolObjectType type, Transform parent)
+        public void Initialize(int startCapacity, PoolObjectType type, Transform parent, VFXType vfxType = VFXType.None)
         {
             Type = type;
             _parent = parent;
+            _vfxType = vfxType;
 
             _entries = new Stack<TComponent>(startCapacity);
         
             for (int i = 0; i < startCapacity; i++)
             {
-                AddObject();
+                AddObject(type, vfxType);
             }
         }
         
@@ -36,7 +41,7 @@ namespace Infrastructure.Services.PoolService
         {
             if (_entries.Count == 0)
             {
-                AddObject();
+                AddObject(Type, _vfxType);
             }
         
             TComponent poolObject = _entries.Pop();
@@ -61,9 +66,23 @@ namespace Infrastructure.Services.PoolService
             _entries.Push(poolObject);
         }
         
-        private void AddObject()
+        private void AddObject(PoolObjectType type, VFXType vfxType = VFXType.None)
         {
-            TComponent newObject = _factory.Create<TComponent>(Type, _parent.transform.position, _parent);
+            TComponent newObject;
+            switch (type)
+            {
+                case PoolObjectType.Sound:
+                    newObject = _factory.CreateSound<TComponent>(_parent.transform.position, _parent);
+                    break;
+                    
+                case PoolObjectType.VFX:
+                    newObject = _factory.CreateVFX<TComponent>(_parent.transform.position, vfxType, _parent);
+                    break;
+                    
+                default:
+                    throw new ArgumentException($"PoolObject with type {type} does not exist");
+            }
+            
             newObject.gameObject.SetActive(false);
             _entries.Push(newObject);
         }

@@ -21,7 +21,6 @@ namespace Gameplay.Sound
             SoundData = soundData;
 
             _audioSource.clip = SoundData.AudioClip;
-            _audioSource.outputAudioMixerGroup = SoundData.MixerGroup;
             _audioSource.loop = SoundData.isLoop;
 
             _audioSource.Play();
