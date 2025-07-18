@@ -58,7 +58,7 @@ VisualEffect:
       m_Array: []
     m_Vector3f:
       m_Array:
-      - m_Value: {x: 3, y: -0.06, z: 3}
+      - m_Value: {x: 3, y: -0.06, z: 1}
         m_Name: BloodVelocity
         m_Overridden: 1
     m_Vector4f:
@@ -166,4 +166,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _visualEffect: {fileID: 7504490444052132000}
+  _vfxLifeTime: 3
   <Type>k__BackingField: 1

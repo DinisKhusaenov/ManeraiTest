@@ -17,7 +17,7 @@ MonoBehaviour:
   - {fileID: 2800000, guid: b60d802836f2478488b7d3c079fc28c1, type: 3}
   - {fileID: 2800000, guid: 48d625e7f803d9248b62d8cb70f8bc87, type: 3}
   <RedTint>k__BackingField: {r: 0.7058824, g: 0.31764707, b: 0.5176471, a: 1}
-  <BruiseTint>k__BackingField: {r: 0.1254902, g: 0.03137255, b: 0.5372549, a: 0.78431374}
+  <BruiseTint>k__BackingField: {r: 0.1254902, g: 0.03137255, b: 0.5372549, a: 0.21960784}
   <BlitShader>k__BackingField: {fileID: 4800000, guid: 50eeae757d62aa440979694bf7ca6c7f,
     type: 3}
   <MarkSize>k__BackingField: {x: 1024, y: 1024}

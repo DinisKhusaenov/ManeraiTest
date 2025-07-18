@@ -21,16 +21,18 @@ namespace Gameplay.VFX
             _poolFactory = poolFactory;
             _pool = new ObjectPool<VFXItem>(_poolFactory);
             _config = staticDataService.VFXConfig;
+            
+            //для тестового
             _pool.Initialize(_config.PoolCapacity, PoolObjectType.VFX, transform, VFXType.Blood);
         }
 
         public void Play(VFXType type, Vector3 position, Quaternion rotation)
         {
-            var prefab = _pool.Get(Vector3.zero, transform);
+            VFXItem prefab = _pool.Get(Vector3.zero, transform);
             prefab.transform.position = position;
             prefab.transform.rotation = rotation;
-            prefab.Play();
             prefab.OnEnded += ReturnToPool;
+            prefab.Play();
         }
 
         public void Stop(VFXType type)
@@ -38,7 +40,10 @@ namespace Gameplay.VFX
             foreach (VFXItem item in _pool.Entries)
             {
                 if (item.Type == type)
+                {
                     item.Stop();
+                    item.OnEnded -= ReturnToPool;
+                }
             }
         }
 

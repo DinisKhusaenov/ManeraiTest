@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 136311920}
   - component: {fileID: 136311919}
   m_Layer: 0
-  m_Name: Hit
+  m_Name: HitHandler
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

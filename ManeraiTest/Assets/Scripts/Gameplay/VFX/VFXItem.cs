@@ -11,6 +11,7 @@ namespace Gameplay.VFX
         public event Action<VFXItem> OnEnded;
         
         [SerializeField] private VisualEffect _visualEffect;
+        [SerializeField, Range(0, 20)] private float _vfxLifeTime;
         
         [field: SerializeField] public VFXType Type { get; private set; }
         
@@ -35,10 +36,7 @@ namespace Gameplay.VFX
         
         private IEnumerator FinishPlay()
         {
-            while (_visualEffect.aliveParticleCount != 0)
-            {
-                yield return null;
-            }
+            yield return new WaitForSeconds(_vfxLifeTime);
 
             OnEnded?.Invoke(this);
         }
